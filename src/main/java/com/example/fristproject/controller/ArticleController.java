@@ -1,10 +1,13 @@
 package com.example.fristproject.controller;
 
 import com.example.fristproject.dto.ArticleForm;
+import com.example.fristproject.dto.CommentDto;
 import com.example.fristproject.entity.Article;
 import com.example.fristproject.repository.ArticleRepository;
+import com.example.fristproject.service.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,17 +16,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @Slf4j
+
 public class ArticleController {
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/articles/new")
     public String newArticleForm(Model model) {
         return "articles/new";
     }
+
+    List<Integer> list = new ArrayList<>();
 
     @PostMapping("/articles/create")
     public String createArticle(ArticleForm form) {
@@ -42,7 +51,10 @@ public class ArticleController {
     public String show(@PathVariable Long id, Model model) {
         Article articleEntity = articleRepository.findById(id).orElse(null);
         log.info("id = " + id);
+        List<CommentDto> commentDtos = commentService.comments(id);
+        log.info(commentDtos.toString());
         model.addAttribute("article", articleEntity);
+        model.addAttribute("commentDtos", commentDtos);
         return "articles/show";
 
     }
